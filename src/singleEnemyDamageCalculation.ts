@@ -34,7 +34,8 @@ class Multipliers{
         this.vulnerabilityMultiplier = debuffs.map(buff => buff.effect.vulnerabilityMultiplierIncrease).reduce((acc, value) => acc + value, 0)+1;
 
         const defReduction = debuffs.map(buff => buff.effect.defReduction).reduce((acc, value) => acc + value, 0)
-        this.defMultiplier = (level+20)/((enemy.level+20)*(1-defReduction) + level + 20)
+        const defReduction2 = buffs.map(buff => buff.effect.defReduction).reduce((acc, value) => acc + value, 0)
+        this.defMultiplier = (level+20)/((enemy.level+20)*(1-defReduction-defReduction2) + level + 20)
 
         //character penetration
         const resMultiplierIncrease1 =  buffs.map(buff=>buff.effect.resMultiplierIncrease).reduce((acc, value) => acc + value, 0)

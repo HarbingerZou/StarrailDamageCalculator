@@ -10,13 +10,16 @@ interface hostileUnit{
     unit:EnemyInstances
     debuffs:OnEnemyDeBuff[]
 }
-class AllTeamEffect{
+interface Team{
+    units:friendlyUnit[]
+}
+class Scene{
     //maxium 5
     enemy:hostileUnit[]
-    team:friendlyUnit[]
+    team:Team
     constructor(){
         this.enemy = []
-        this.team = []
+        this.team = {units:[]}
     }
 
 }   

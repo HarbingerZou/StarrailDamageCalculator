@@ -1,40 +1,4 @@
-interface Stats {
-    hpBase: number;
-    hpFinal: number;
-    attackBase: number;
-    attackFinal: number;
-    defenseBase: number;
-    defenseFinal: number;
-    speedBase: number;
-    speedFinal: number;
-    criticalChance: number;
-    criticalDamage: number;
-    stanceBreakRatio: number;
-    healRatio: number;
-    spRatio: number;
-    statusProbability: number;
-    statusResistance: number;
-    physicalAddHurt: number;
-    fireAddHurt: number;
-    iceAddHurt: number;
-    elecAddHurt: number;
-    windAddHurt: number;
-    quantumAddHurt: number;
-    imaginaryAddHurt: number;
-}
-interface AffixInterface{
-    type:MainStatType,
-    value:number,
-}
-
-interface subAffixInterface{
-    type:SubStatType,
-    count:number
-    value:number,
-}
-
 //should store the skill data of each character
-
 
 interface RelicInterface{
     level:number;
@@ -125,10 +89,12 @@ interface OnEnemySpecialEffectInterface{
 class SpecialEffects implements SpecialEffectInterface{
     boostMultiplierIncrease:number
     resMultiplierIncrease:number
+    defReduction:number
     shieldAbsorb:number
-    constructor(boostMultiplierIncrease:number = 0, resMultiplierIncrease:number = 0, shieldAbsorb = 0){
+    constructor(boostMultiplierIncrease:number = 0, resMultiplierIncrease:number = 0, shieldAbsorb = 0, defReduction = 0){
         this.boostMultiplierIncrease = boostMultiplierIncrease;
         this.resMultiplierIncrease = resMultiplierIncrease;
+        this.defReduction = defReduction
         this.shieldAbsorb = shieldAbsorb
     }
 }
@@ -222,26 +188,42 @@ class StatsBoost implements StatsBoostInterface{
 
 //This represents a single buff under the buff list veiw in game
 //Therefore it can contains statsBoost and effecr at the same time
-class Buff{
-    //The target index of this buff
-    target:number
-    effectiveField:damageType[]
-    statsBoost:StatsBoost
-    effect:SpecialEffects
-    notes:string[]
-    constructor(tagret:number = 0, effectiveField:damageType[] = ["basic attack","skill","ultimate","follow up"]){
-        this.target = tagret 
-        this.effectiveField = effectiveField
-        this.statsBoost = new StatsBoost()
-        this.effect = new SpecialEffects();
-        this.notes = []
+type ValidTarget = 0 | 1 | 2 | 3;
+type ValidTargets = ValidTarget | ValidTarget[];
+class Buff {
+    //target = 0, this effect is for character itself
+    //target = [0,1,2,3]...., This effect is for selected memeber in the team
+    target: ValidTargets;
+    effectiveField: damageType[];
+    statsBoost: StatsBoost;
+    effect: SpecialEffects;
+    notes: string[];
+
+    constructor({
+        target = 0,
+        effectiveField = ["basic attack", "skill", "ultimate", "follow up"],
+        statsBoost = new StatsBoost(),
+        effect = new SpecialEffects(),
+        notes = []
+    }: {
+        target?: ValidTargets;
+        effectiveField?: damageType[];
+        statsBoost?: StatsBoost;
+        effect?: SpecialEffects;
+        notes?: string[];
+    } = {}) {
+        this.target = target;
+        this.effectiveField = effectiveField;
+        this.statsBoost = statsBoost;
+        this.effect = effect;
+        this.notes = notes;
     }
 }
 
 class OnEnemyDeBuff{
     effect:OnEnemySpecialEffect
     notes:string[]
-    constructor(effect:OnEnemySpecialEffect, notes:string[]){
+    constructor({effect = new OnEnemySpecialEffect(), notes=[]}:{effect?:OnEnemySpecialEffect, notes?:string[]}={}){
         this.effect = effect
         this.notes = notes
     }
@@ -264,13 +246,3 @@ interface baseValueMultiplierInterface{
     type:statsMultiplierDepdentStats
 }
 
-//Multiplier for an single enemy
-interface FlatMultipliersInterface{
-    baseValueMultiplier:baseValueMultiplierInterface[]
-    critMultiplier:number
-    boostMultiplier:number
-    vulnerabilityMultiplier:number
-    defMultiplier:number
-    resMultiplier:number
-    toughnessMultiplier:number
-}
