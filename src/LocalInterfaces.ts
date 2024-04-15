@@ -12,6 +12,7 @@ interface RelicInterface{
 interface WeaponInterface {
     name:string;
     path:path;
+    effectName:string
     level:number;
     promotion:number;
     rankLevel: number;
@@ -240,9 +241,3 @@ class EnemyInstances{
     }
 
 }
-interface baseValueMultiplierInterface{
-    coef:number
-    statValue:number
-    type:statsMultiplierDepdentStats
-}
-
