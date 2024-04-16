@@ -2,7 +2,7 @@
 interface baseValueMultiplierInterface{
     coef:number
     statValue:number
-    type:statsMultiplierDepdentStats
+    type:statsMultiplierDependentStats
 }
 
 interface FlatMultipliersInterface{

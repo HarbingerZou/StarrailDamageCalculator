@@ -1,9 +1,9 @@
 interface friendlyUnit{
     character:CharacterInterface<
-        skill_Coef_Full | skill_Coef_Full[],
-        skill_Coef_Full | skill_Coef_Full[],
-        skill_Coef_Full | skill_Coef_Full[],
-        skill_Coef_Full | skill_Coef_Full[]>
+        skill_Coef_all_level | skill_Coef_all_level[],
+        skill_Coef_all_level | skill_Coef_all_level[],
+        skill_Coef_all_level | skill_Coef_all_level[],
+        skill_Coef_all_level | skill_Coef_all_level[]>
     buffs:Buff[]
 }
 interface hostileUnit{
@@ -23,3 +23,8 @@ class Scene{
     }
 
 }   
+
+interface Context{
+    enemy:hostileUnit[]
+    team:Team
+}

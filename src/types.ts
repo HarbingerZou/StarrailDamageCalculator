@@ -13,4 +13,4 @@ type StatType = MainStatType|SubStatType
 
 type damageType = "basic attack" | "skill" | "ultimate" | "follow up"
 
-type statsMultiplierDepdentStats = "ATK"|"DEF"|"HP"
+type statsMultiplierDependentStats = "ATK"|"DEF"|"HP"

@@ -1,7 +1,7 @@
 class Multipliers{
-    stats: Record<statsMultiplierDepdentStats,number>;
+    stats: Record<statsMultiplierDependentStats,number>;
     aggregateCoef:skill_Coef_Aggregate;
-
+    targetWiseCoef:number
     //
     critDamage:number
     critRate:number
@@ -15,14 +15,15 @@ class Multipliers{
     dynamicProperties: Record<string, number> = {};
 
     //Standard way of constructing multiplier from 
-    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, buffs:Buff[],  enemy:EnemyInstances, debuffs:OnEnemyDeBuff[]){
-        const depdentStats:Record<statsMultiplierDepdentStats,number>={
+    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, targetWiseCoef:number, buffs:Buff[],  enemy:EnemyInstances, debuffs:OnEnemyDeBuff[]){
+        const depdentStats:Record<statsMultiplierDependentStats,number>={
             "ATK":getFinalATK(stats,buffs),
             "DEF":getFinalDEF(stats,buffs),
-            "HP":getFinalHP(stats,buffs)
+            "HP":getFinalHP(stats,buffs),
         }
         this.stats = depdentStats
         this.aggregateCoef = aggregateCoef;
+        this.targetWiseCoef = targetWiseCoef
 
         this.critDamage = getFinalCriticalDamage(stats,buffs)
         this.critRate = getFinalCriticalRate(stats,buffs)
@@ -51,13 +52,13 @@ class Multipliers{
         let baseMultiplier = 0
         for(const coef of this.aggregateCoef.CoefAggregate){
             if(coef.dependentStat === "ATK"){
-                baseMultiplier += coef.value*this.stats.ATK
+                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.ATK
             }
             if(coef.dependentStat === "DEF"){
-                baseMultiplier += coef.value*this.stats.DEF
+                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.DEF
             }
             if(coef.dependentStat === "HP"){
-                baseMultiplier += coef.value*this.stats.HP
+                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.HP
             }
         }
         return baseMultiplier * this.critMultiplier*this.boostMultiplier*this.defMultiplier*this.resMultiplier*this.vulnerabilityMultiplier*this.toughnessMultiplier
@@ -67,7 +68,7 @@ class Multipliers{
         const basevalueMultipliers:baseValueMultiplierInterface[] = []
         for(const coef of this.aggregateCoef.CoefAggregate){
             const baseValueMultiplier:baseValueMultiplierInterface = {
-                coef: coef.value,
+                coef: coef.value*this.targetWiseCoef,
                 statValue: this.stats[coef.dependentStat],
                 type: coef.dependentStat
             }

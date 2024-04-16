@@ -25,20 +25,4 @@ export default class Along_the_Passing_Shore extends Weapon{
             return []
         }
     }
-    addEffect(effect: AllTeamEffect, context: Context): void {
-        if(this.isEffective()){
-            const currentCharacter = context.currentCharacter
-            const currentCharacterEffect = effect.characterEffect.get(currentCharacter)
-            if(currentCharacterEffect === undefined){
-                return
-            }
-            const globalDamageBoost = 0.2+0.04*this.rankLevel
-            currentCharacterEffect.globalEffect.effect.boostMultiplierIncrease += globalDamageBoost
-            currentCharacterEffect.globalEffect.notes.push(`${this.effectName}: The wearer deals ${round(globalDamageBoost*100)}% increased DMG to targets afflicted with Mirage Fizzle`)
-            
-            const ultimateDamageBoost = 0.2+0.04*this.rankLevel
-            currentCharacterEffect.ultimateEffect.effect.boostMultiplierIncrease += ultimateDamageBoost
-            currentCharacterEffect.ultimateEffect.notes.push(`${this.effectName}: The DMG dealt by the wearer's Ultimate additionally increases by ${round(globalDamageBoost*100)}%.`)
-        }
-    }
 }
