@@ -1,6 +1,11 @@
+import { Buff, skill_Coef_all_level, CharacterInterface, ValidTarget } from "../LocalInterfaces";
+import { Stats } from "../ReqJSONInterfaces";
+import { Context } from "../scenarioSetting";
+import { Multipliers } from "../singleEnemyDamageCalculation";
+
 //expects TBasic, TSkill... to be coefficients
 interface LocalContext{
-    localBuffs:Buff[]
+    localBuffs:Record<string,Buff>
 }
 interface HasLocalContext{
     localContext:LocalContext
@@ -40,10 +45,6 @@ TTalent extends skill_Coef_all_level | skill_Coef_all_level[] | number[]| number
             basic_data: TBasic, skill_data: TSkill, ultimate_data: TUltimate, talent_data: TTalent,
             stats:Stats
            ){
-        const talentSkillCoefficient = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.625, 1.75, 1.875, 2, 2.1, 2.2]
-        const ultimateCoefficient = [1.2, 1.28, 1.36, 1.44, 1.52, 1.6, 1.7, 1.8, 1.9, 2, 2.08, 2.16]
-        const level7Coefficient = [0.5,0.6,0.7,0.8,0.9,1,1.1];
-
         this.name = name;
         this.eidolon = eidolon;
         this.path = path;
@@ -90,11 +91,14 @@ TTalent extends skill_Coef_all_level | skill_Coef_all_level[] | number[]| number
     abstract ultimatePressed(context: Context, currentCharacterIndex:ValidTarget):Multipliers[]|void
 }
 
-export  {LocalContext, Character, HasLocalContext, InTurnContext}
-
-
 interface getDamageBuffInfo{
+    character:Character<skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]> 
     getDisplayData1(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
     getDisplayData2(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
     getDisplayData3(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
 }
+
+export  {LocalContext, Character, HasLocalContext, InTurnContext, getDamageBuffInfo}

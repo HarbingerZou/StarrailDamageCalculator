@@ -1,11 +1,18 @@
-import {Character,LocalContext, HasLocalContext, InTurnContext} from "../_CharacterAbstract";
+import { Buff, skill_Coef_all_level, ValidTarget } from "../../LocalInterfaces";
+import { Stats } from "../../ReqJSONInterfaces";
+import { getBasicCoefficientDependentStats, getSkillTalentCoef, getUltimateCoefficientDependentStats, Context, getAllBuffOnCharacter } from "../../scenarioSetting";
+import { Multipliers } from "../../singleEnemyDamageCalculation";
+import {Character,LocalContext, HasLocalContext, InTurnContext, getDamageBuffInfo} from "../_CharacterAbstract";
 
 //store info only relevant to this character
+type localBuffName = "LeapResPen"| "DracoreLibre_main" | "DracoreLibre_side"|
+ "RighteousHeart_main" | "RighteousHeart_side" | "imagWeakCritDamageIncrease"
+
 class Dan_Heng_IL_Local_Context implements LocalContext{
     maxRighteousHeart:number = 6
     RighteousHeartGainPerAttack:number = 1
 
-    localBuffs:Record<string,Buff>
+    localBuffs:Partial<Record<localBuffName,Buff>>
     Divine_Spear_Dracore_Libre_total_stack:number = 3
     Fulgurant_Leap_Dracore_Libre_total_stack:number = 10
     Divine_Spear_Dracore_Libre_side_attack_count:number = 2
@@ -28,7 +35,7 @@ class Dan_Heng_IL_In_Turn_Context implements InTurnContext{
     }
 }
 
-export default class Dan_Heng_IL extends Character<skill_Coef_all_level[], number[], number[], number[]> implements HasLocalContext{
+class Dan_Heng_IL extends Character<skill_Coef_all_level[], number[], skill_Coef_all_level, number[]> implements HasLocalContext{
     localContext: Dan_Heng_IL_Local_Context;
     inTurnContext: Dan_Heng_IL_In_Turn_Context
     constructor(level: number, eidolon: number, basic_level: number, skill_level: number, ultimate_level: number, talent_level: number, trace1: boolean, trace2: boolean, trace3: boolean, stats:Stats) {
@@ -46,7 +53,7 @@ export default class Dan_Heng_IL extends Character<skill_Coef_all_level[], numbe
         
         // Skill for Dracore Libre
         const skill_data: number[] = getSkillTalentCoef(0.06);
-        const ultimate_data: number[] = getUltimateCoefficient(1.5);
+        const ultimate_data: skill_Coef_all_level = getUltimateCoefficientDependentStats({ATK:1.5});
         const talent_data: number[] = getSkillTalentCoef(0.05)
        
         super(name, eidolon,  path, element, level,
@@ -78,6 +85,7 @@ export default class Dan_Heng_IL extends Character<skill_Coef_all_level[], numbe
             const criticalDamageIncrease = 0.24
             buff.statsBoost.criticalDamage += criticalDamageIncrease
             buff.notes.push(`Jolt Anew: This character's CRIT DMG increases by ${round(criticalDamageIncrease*100)}% when dealing DMG to enemy targets with Imaginary Weakness.`)
+            this.localContext.localBuffs.imagWeakCritDamageIncrease = buff
         }
     }
 
@@ -118,7 +126,7 @@ export default class Dan_Heng_IL extends Character<skill_Coef_all_level[], numbe
         buff_side.notes.push(`Righteous Heart: Damage increase by ${round(talentBoost2*100)} (side Target)%`)
         this.localContext.localBuffs.RighteousHeart_side = buff_side
 
-        
+        //add Dracore Libre
         const critDamageIncreasePerStack = this.skill_data[this.skill_level-1];
         const buff2_main = new Buff({effectiveField:["basic attack"]})
         const buff2_side = new Buff({effectiveField:["basic attack"]})
@@ -155,15 +163,152 @@ export default class Dan_Heng_IL extends Character<skill_Coef_all_level[], numbe
 
     basicAttackPressed(context: Context, currentCharacterIndex: ValidTarget): Multipliers[] {
         const buff = getAllBuffOnCharacter(context,currentCharacterIndex).filter(buff=>buff.effectiveField.includes("basic attack"))
+        this.addEffect(context)
         const localBuffList = this.localContext.localBuffs
-        buff.concat(localBuffList.imagWeakCritDamageIncrease)
-        return []
+        //Assume enemy always have imagine weakness
+        let output:Multipliers[] = []
+        if(localBuffList.imagWeakCritDamageIncrease !== undefined){
+            buff.concat(localBuffList.imagWeakCritDamageIncrease)
+        }
+
+        if(this.inTurnContext.DracoreLibreCount === 0){
+            output = [new Multipliers(this.level, this.element, this.stats, this.basic_data[0].allLevelCoef[this.basic_level-1],
+                1, buff, context.enemy[2]
+            )]
+        }else if(this.inTurnContext.DracoreLibreCount === 1){
+            output = [new Multipliers(this.level, this.element, this.stats, this.basic_data[1].allLevelCoef[this.basic_level-1],
+                1, buff, context.enemy[2]
+            )]
+        }else if(this.inTurnContext.DracoreLibreCount === 2){
+            const mainBuffs = [...buff]
+            const sideBuffs = [...buff]
+
+            if(localBuffList.DracoreLibre_main !== undefined){
+                mainBuffs.concat(localBuffList.DracoreLibre_main)
+            }
+            if(localBuffList.RighteousHeart_main !== undefined){
+                mainBuffs.concat(localBuffList.RighteousHeart_main)
+            }
+
+            if(localBuffList.DracoreLibre_side !== undefined){
+                sideBuffs.concat(localBuffList.DracoreLibre_side)
+            }
+            if(localBuffList.RighteousHeart_side !== undefined){
+                sideBuffs.concat(localBuffList.RighteousHeart_side)
+            }
+            output = [
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[2].allLevelCoef[this.basic_level-1],
+                    3/19, sideBuffs, context.enemy[1]
+                ),
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[2].allLevelCoef[this.basic_level-1],
+                    1, mainBuffs, context.enemy[2]
+                ),
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[2].allLevelCoef[this.basic_level-1],
+                    3/19, sideBuffs, context.enemy[3]
+                )
+            ]
+        }else{
+            //leap 
+            if(localBuffList.LeapResPen !== undefined){
+                buff.concat(localBuffList.LeapResPen)
+            }
+            const mainBuffs = [...buff]
+            const sideBuffs = [...buff]
+            if(localBuffList.DracoreLibre_main !== undefined){
+                mainBuffs.concat(localBuffList.DracoreLibre_main)
+            }
+            if(localBuffList.RighteousHeart_main !== undefined){
+                mainBuffs.concat(localBuffList.RighteousHeart_main)
+            }
+            if(localBuffList.DracoreLibre_side !== undefined){
+                sideBuffs.concat(localBuffList.DracoreLibre_side)
+            }
+            if(localBuffList.RighteousHeart_side !== undefined){
+                sideBuffs.concat(localBuffList.RighteousHeart_side)
+            }
+            output = [
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[3].allLevelCoef[this.basic_level-1],
+                    9/25, sideBuffs, context.enemy[1]
+                ),
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[3].allLevelCoef[this.basic_level-1],
+                    1, mainBuffs, context.enemy[2]
+                ),
+                new Multipliers(this.level, this.element, this.stats, this.basic_data[3].allLevelCoef[this.basic_level-1],
+                    9/25, sideBuffs, context.enemy[3]
+                )
+            ]
+        }
+        this.inTurnContext = new Dan_Heng_IL_In_Turn_Context()
+        return output
     }
-    //Dracore Libre
+
     skillPressed(context: Context, currentCharacterIndex: ValidTarget): void {
         this.inTurnContext.DracoreLibreCount ++
     }
     ultimatePressed(context: Context, currentCharacterIndex: ValidTarget): void | Multipliers[] {
-        throw new Error("Method not implemented.");
+        const buff = getAllBuffOnCharacter(context,currentCharacterIndex).filter(buff=>buff.effectiveField.includes("basic attack"))
+        this.inTurnContext.DracoreLibreCount = -1
+        this.addEffect(context)
+        const localBuffList = this.localContext.localBuffs
+        //Assume enemy always have imagine weakness
+        if(localBuffList.imagWeakCritDamageIncrease !== undefined){
+            buff.concat(localBuffList.imagWeakCritDamageIncrease)
+        }
+        const mainBuffs = [...buff]
+        const sideBuffs = [...buff]
+        if(localBuffList.RighteousHeart_main !== undefined){
+            mainBuffs.concat(localBuffList.RighteousHeart_main)
+        }
+        if(localBuffList.RighteousHeart_side !== undefined){
+            sideBuffs.concat(localBuffList.RighteousHeart_side)
+        }
+
+        let output:Multipliers[] = [
+            new Multipliers(this.level, this.element, this.stats, this.ultimate_data.allLevelCoef[this.ultimate_level-1],
+                7/15, sideBuffs, context.enemy[1]
+            ),
+            new Multipliers(this.level, this.element, this.stats, this.ultimate_data.allLevelCoef[this.ultimate_level-1],
+                1, mainBuffs, context.enemy[2]
+            ),
+            new Multipliers(this.level, this.element, this.stats, this.ultimate_data.allLevelCoef[this.ultimate_level-1],
+                7/15, sideBuffs, context.enemy[3]
+            )
+        ]
     }
 }   
+
+class Dan_Heng_IL_Info implements getDamageBuffInfo{
+    character: Character<skill_Coef_all_level[], number[], skill_Coef_all_level, number[]>
+    constructor(character:Character<skill_Coef_all_level[], number[], skill_Coef_all_level, number[]>){
+        this.character = character
+    }
+    getDisplayData1(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+         this.character.skillPressed(context, currentCharacterIndex)
+         this.character.skillPressed(context, currentCharacterIndex)
+         const multipliers:Multipliers[]|void = this.character.basicAttackPressed(context, currentCharacterIndex)
+         if(multipliers){
+            console.log(multipliers[0].getStraightDamageWithFinalStats())
+            return multipliers.map(multiplier => multiplier.getFlatMultipliers())
+         }
+    }
+    getDisplayData2(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+        this.character.skillPressed(context, currentCharacterIndex)
+        this.character.skillPressed(context, currentCharacterIndex)
+        this.character.skillPressed(context, currentCharacterIndex)
+        const multipliers:Multipliers[]|void = this.character.basicAttackPressed(context, currentCharacterIndex)
+        
+        if(multipliers){
+            return multipliers.map(multiplier => multiplier.getFlatMultipliers())
+        }
+    }
+    getDisplayData3(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+        const multipliers:Multipliers[]|void = this.character.ultimatePressed(context, currentCharacterIndex)
+        
+        if(multipliers){
+            return multipliers.map(multiplier => multiplier.getFlatMultipliers())
+        }
+    }
+
+}
+
+export {Dan_Heng_IL_Info,Dan_Heng_IL}

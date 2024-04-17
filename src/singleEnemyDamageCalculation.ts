@@ -1,3 +1,6 @@
+import { Stats } from "./ReqJSONInterfaces";
+import { skill_Coef_Aggregate, Buff } from "./LocalInterfaces";
+import { hostileUnit } from "./scenarioSetting";
 class Multipliers{
     stats: Record<statsMultiplierDependentStats,number>;
     aggregateCoef:skill_Coef_Aggregate;
@@ -15,20 +18,23 @@ class Multipliers{
     dynamicProperties: Record<string, number> = {};
 
     //Standard way of constructing multiplier from 
-    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, targetWiseCoef:number, buffs:Buff[],  enemy:EnemyInstances, debuffs:OnEnemyDeBuff[]){
+    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, targetWiseCoef:number, buffs:Buff[],  hostileUnit:hostileUnit){
         const depdentStats:Record<statsMultiplierDependentStats,number>={
             "ATK":getFinalATK(stats,buffs),
             "DEF":getFinalDEF(stats,buffs),
             "HP":getFinalHP(stats,buffs),
         }
+        const debuffs = hostileUnit.debuffs
+        const enemy = hostileUnit.unit
+
         this.stats = depdentStats
         this.aggregateCoef = aggregateCoef;
         this.targetWiseCoef = targetWiseCoef
-
+        
         this.critDamage = getFinalCriticalDamage(stats,buffs)
         this.critRate = getFinalCriticalRate(stats,buffs)
         this.critMultiplier = 1+Math.min(this.critRate,1)*this.critDamage
-
+        
 
         this.boostMultiplier = buffs.map(buff=>buff.effect.boostMultiplierIncrease).reduce((acc, value) => acc + value, 0) + 1 + getElementDamage(element, stats);
 
@@ -159,3 +165,5 @@ function getFinalCriticalRate(stats:Stats, buffs:Buff[]){
     }
     return output
 }
+
+export {Multipliers}
