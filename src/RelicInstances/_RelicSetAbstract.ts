@@ -1,3 +1,5 @@
+import { Buff, OnEnemyDeBuff } from "../LocalInterfaces";
+
 export default interface RelicSet{
     count:number
     setName:string

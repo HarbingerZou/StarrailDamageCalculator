@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 
 export default class Fleet_of_the_Ageless implements RelicSet{

@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 
 export default class Space_Sealing_Station implements RelicSet{

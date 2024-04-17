@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class The_Ashblazing_Grand_Duke implements RelicSet{
     setName: string;

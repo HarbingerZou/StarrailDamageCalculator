@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 
 export default class Messenger_Traversing_Hackerspace implements RelicSet{

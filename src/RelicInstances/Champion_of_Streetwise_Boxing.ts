@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Champion_of_Streetwise_Boxing implements RelicSet{
     setName: string;

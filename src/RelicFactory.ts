@@ -1,3 +1,4 @@
+import { RelicInterface } from "./LocalInterfaces";
 import RelicSet  from "./RelicInstances/_RelicSetAbstract";
 import Band_of_Sizzling_Thunder from "./RelicInstances/Band_of_Sizzling_Thunder";
 import Belobog_of_the_Architects from "./RelicInstances/Belobog_of_the_Architects";
@@ -30,6 +31,7 @@ import The_Ashblazing_Grand_Duke from "./RelicInstances/The_Ashblazing_Grand_Duk
 import Thief_of_Shooting_Meteor from "./RelicInstances/Thief_of_Shooting_Meteor";
 import Wastelander_of_Banditry_Desert from "./RelicInstances/Wastelander_of_Banditry_Desert";
 import Watchmaker_Master_of_Dream_Machinations from "./RelicInstances/Watchmaker_Master_of_Dream_Machinations";
+import { AffixInterface, subAffixInterface } from "./ReqJSONInterfaces";
 
 class Relic implements RelicInterface{
     level:number;

@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 
 export default class Wastelander_of_Banditry_Desert implements RelicSet{

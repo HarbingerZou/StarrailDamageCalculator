@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 
 export default class Prisoner_in_Deep_Confinement implements RelicSet{

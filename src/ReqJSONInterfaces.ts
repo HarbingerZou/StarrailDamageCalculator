@@ -63,4 +63,4 @@ interface subAffixInterface{
     count:number
     value:number,
 }
-export {RawCharacter, RawRelic, RawWeapon, Stats, subAffixInterface}
+export {RawCharacter, RawRelic, RawWeapon, Stats, subAffixInterface, AffixInterface}

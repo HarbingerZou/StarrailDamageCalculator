@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Guard_of_Wuthering_Snow implements RelicSet{
     setName: string;

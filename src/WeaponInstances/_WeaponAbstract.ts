@@ -1,3 +1,5 @@
+import { WeaponInterface, Buff, OnEnemyDeBuff } from "../LocalInterfaces";
+
 export default abstract class Weapon implements WeaponInterface{
     holderPath:path
     name:string;

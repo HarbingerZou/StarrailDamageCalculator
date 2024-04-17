@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Hunter_of_Glacial_Forest implements RelicSet{
     setName: string;

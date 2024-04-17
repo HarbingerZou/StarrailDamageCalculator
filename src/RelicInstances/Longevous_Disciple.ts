@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Longevous_Disciple implements RelicSet{
     setName: string;

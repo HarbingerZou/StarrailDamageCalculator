@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Firesmith_of_Lava_Forging implements RelicSet{
     setName: string;

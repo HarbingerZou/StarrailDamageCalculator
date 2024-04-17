@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Musketeer_of_Wild_Wheat implements RelicSet{
     setName: string;

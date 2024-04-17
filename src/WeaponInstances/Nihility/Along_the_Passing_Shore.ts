@@ -1,3 +1,4 @@
+import { Buff, OnEnemyDeBuff } from "../../LocalInterfaces";
 import Weapon from "../_WeaponAbstract";
 export default class Along_the_Passing_Shore extends Weapon{
     constructor(holderPath:path,level: number, promotion: number, rankLevel: number) {

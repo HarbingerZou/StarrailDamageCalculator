@@ -1,3 +1,4 @@
+import { Buff, OnEnemyDeBuff } from "../../LocalInterfaces";
 import Weapon from "../_WeaponAbstract";
 export default class I_Shall_Be_My_Own_Sword extends Weapon{
     constructor(holderPath:path,level: number, promotion: number, rankLevel: number) {

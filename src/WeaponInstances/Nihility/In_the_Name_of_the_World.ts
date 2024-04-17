@@ -1,3 +1,4 @@
+import { Buff, OnEnemyDeBuff } from "../../LocalInterfaces";
 import Weapon from "../_WeaponAbstract";
 export default class In_the_Name_of_the_World extends Weapon{
     constructor(holderPath:path,level: number, promotion: number, rankLevel: number) {

@@ -1,3 +1,4 @@
+import { Buff } from "../LocalInterfaces";
 import RelicSet from "./_RelicSetAbstract";
 export default class Izumo_Gensei_and_Takama_Divine_Realm implements RelicSet{
     setName: string;

@@ -1,3 +1,4 @@
+import { Buff, OnEnemyDeBuff } from "../../LocalInterfaces";
 import Weapon from "../_WeaponAbstract";
 
 export default class brighter_than_the_sun extends Weapon{
