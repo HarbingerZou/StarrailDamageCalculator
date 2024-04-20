@@ -16,6 +16,12 @@ interface RawCharacter {
     trace1: boolean;
     trace2:boolean;
     trace3:boolean;
+
+    name:string;
+    element:element;
+    combatValues:Stats
+    weapon:RawWeapon
+    relics:RawRelic[]
 }
 
 interface RawRelic{

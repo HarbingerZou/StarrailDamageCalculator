@@ -13,7 +13,6 @@ skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]> | undefine
             characterInfo.trace1,characterInfo.trace2,characterInfo.trace3, stats);
 
     }
-
 }
 
 export {getCharacter};

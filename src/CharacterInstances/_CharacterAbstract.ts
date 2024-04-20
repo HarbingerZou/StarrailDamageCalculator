@@ -83,22 +83,8 @@ TTalent extends skill_Coef_all_level | skill_Coef_all_level[] | number[]| number
         this.addTraces(context)
         this.addPassiveSkill(context)
     }
-
-    //get the constructed multipliers for each character
-    //or ignore the value if it doesn't return any value
-    abstract basicAttackPressed(context: Context, currentCharacterIndex:ValidTarget):Multipliers[]|void
-    abstract skillPressed(context: Context, currentCharacterIndex:ValidTarget):Multipliers[]|void
-    abstract ultimatePressed(context: Context, currentCharacterIndex:ValidTarget):Multipliers[]|void
+    abstract getDisplayData1(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
+    abstract getDisplayData2(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
+    abstract getDisplayData3(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
 }
-
-interface getDamageBuffInfo{
-    character:Character<skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
-    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
-    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
-    skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]> 
-    getDisplayData1(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
-    getDisplayData2(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
-    getDisplayData3(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
-}
-
-export  {LocalContext, Character, HasLocalContext, InTurnContext, getDamageBuffInfo}
+export  {LocalContext, Character, HasLocalContext, InTurnContext}

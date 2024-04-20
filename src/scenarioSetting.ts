@@ -19,32 +19,23 @@ class hostileUnit implements hostileUnit{
         this.debuffs = []
     }
 }
-interface Team{
-    units:friendlyUnit[]
-}
 class Scene{
     //maxium 5
-    enemy:hostileUnit[]
-    team:Team
-    constructor(enemy = [
-        new hostileUnit(),
-        new hostileUnit(),
-        new hostileUnit(),
-        new hostileUnit(),
-        new hostileUnit()
-    ]){
+    enemy:hostileUnit
+    character:friendlyUnit
+    constructor(enemy = new hostileUnit(), character:friendlyUnit){
         this.enemy = enemy
-        this.team = {units:[]}
+        this.character = character
     }
 
 }   
 
 interface Context{
     enemy:hostileUnit[]
-    team:Team
+    friendlyUnit:friendlyUnit
 }
 
-export {hostileUnit, friendlyUnit, Team, Scene, Context}
+export {hostileUnit, friendlyUnit, Scene, Context}
 
 function getSkillTalentCoef(multiplier:number){
     const talentSkillCoefficient = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.625, 1.75, 1.875, 2, 2.1, 2.2]
@@ -121,17 +112,9 @@ function getBasicCoefficientDependentStats(multipliers:Partial<Record<statsMulti
 }
 
 
-function getAllBuffOnCharacter(context:Context, currentCharacterIndex:ValidTarget):Buff[]{
-    const selfOnSelfBuffList:Buff[] = context.team.units[currentCharacterIndex].buffs.filter(
-        buff=> buff.target === 0 || (Array.isArray(buff.target) && buff.target.includes(currentCharacterIndex)))
-    
-    const teammates:friendlyUnit[] = context.team.units.filter((unit,i)=> i !== currentCharacterIndex)
-   
-    const teammateOnSelfBuffList :Buff[]= teammates.map(teammate =>  teammate.buffs.filter(
-        buff=>(Array.isArray(buff.target) && buff.target.includes(currentCharacterIndex))
-    )).reduce((acc, curr) => acc.concat(curr), [])
-
-    return selfOnSelfBuffList.concat(teammateOnSelfBuffList)
+function getAllBuffOnCharacter(context:Context):Buff[]{
+    const buff:Buff[] = context.friendlyUnit.buffs
+    return buff
 }
 
 export {getBasicCoefficient, getSkillTalentCoef, getUltimateCoefficient}

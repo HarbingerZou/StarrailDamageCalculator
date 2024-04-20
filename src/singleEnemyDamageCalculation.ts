@@ -4,7 +4,6 @@ import { hostileUnit } from "./scenarioSetting";
 class Multipliers{
     stats: Record<statsMultiplierDependentStats,number>;
     aggregateCoef:skill_Coef_Aggregate;
-    targetWiseCoef:number
     //
     critDamage:number
     critRate:number
@@ -18,25 +17,26 @@ class Multipliers{
     dynamicProperties: Record<string, number> = {};
 
     //Standard way of constructing multiplier from 
-    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, targetWiseCoef:number, buffs:Buff[],  hostileUnit:hostileUnit){
+    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, buffs:Buff[],  hostileUnit:hostileUnit){
+        const stats_local = getStatsAfterBuff(stats, buffs)
         const depdentStats:Record<statsMultiplierDependentStats,number>={
-            "ATK":getFinalATK(stats,buffs),
-            "DEF":getFinalDEF(stats,buffs),
-            "HP":getFinalHP(stats,buffs),
+            "ATK":stats.attackFinal,
+            "DEF":stats.attackFinal,
+            "HP":stats.attackFinal,
         }
+
         const debuffs = hostileUnit.debuffs
         const enemy = hostileUnit.unit
 
         this.stats = depdentStats
         this.aggregateCoef = aggregateCoef;
-        this.targetWiseCoef = targetWiseCoef
         
-        this.critDamage = getFinalCriticalDamage(stats,buffs)
-        this.critRate = getFinalCriticalRate(stats,buffs)
+        this.critDamage =  stats_local.criticalDamage
+        this.critRate = stats_local.criticalChance
         this.critMultiplier = 1+Math.min(this.critRate,1)*this.critDamage
         
 
-        this.boostMultiplier = buffs.map(buff=>buff.effect.boostMultiplierIncrease).reduce((acc, value) => acc + value, 0) + 1 + getElementDamage(element, stats);
+        this.boostMultiplier = buffs.map(buff=>buff.effect.boostMultiplierIncrease).reduce((acc, value) => acc + value, 0) + 1 + getElementDamage(element, stats_local);
 
         this.vulnerabilityMultiplier = debuffs.map(buff => buff.effect.vulnerabilityMultiplierIncrease).reduce((acc, value) => acc + value, 0)+1;
 
@@ -58,13 +58,13 @@ class Multipliers{
         let baseMultiplier = 0
         for(const coef of this.aggregateCoef.CoefAggregate){
             if(coef.dependentStat === "ATK"){
-                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.ATK
+                baseMultiplier += coef.value**this.stats.ATK
             }
             if(coef.dependentStat === "DEF"){
-                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.DEF
+                baseMultiplier += coef.value*this.stats.DEF
             }
             if(coef.dependentStat === "HP"){
-                baseMultiplier += coef.value*this.targetWiseCoef*this.stats.HP
+                baseMultiplier += coef.value*this.stats.HP
             }
         }
         return baseMultiplier * this.critMultiplier*this.boostMultiplier*this.defMultiplier*this.resMultiplier*this.vulnerabilityMultiplier*this.toughnessMultiplier
@@ -74,7 +74,7 @@ class Multipliers{
         const basevalueMultipliers:baseValueMultiplierInterface[] = []
         for(const coef of this.aggregateCoef.CoefAggregate){
             const baseValueMultiplier:baseValueMultiplierInterface = {
-                coef: coef.value*this.targetWiseCoef,
+                coef: coef.value,
                 statValue: this.stats[coef.dependentStat],
                 type: coef.dependentStat
             }
@@ -121,7 +121,7 @@ function getElementDamage(element:element, stats:Stats){
             return stats.physicalAddHurt
     }
 }
-
+/*
 function getFinalATK(stats:Stats, buffs:Buff[]):number{
     let outputATK = stats.attackFinal
     for(const buff of buffs){
@@ -164,6 +164,40 @@ function getFinalCriticalRate(stats:Stats, buffs:Buff[]){
         output += buff.statsBoost.criticalChance
     }
     return output
-}
+}*/
 
+function getStatsAfterBuff(stats:Stats, buffs:Buff[]):Stats{
+    const stats_copy:Stats = JSON.parse(JSON.stringify(stats))
+    for(const buff of buffs){
+        stats_copy.attackFinal += buff.statsBoost.attack
+        stats_copy.attackFinal += buff.statsBoost.attackPercentage*stats.attackBase
+
+        stats_copy.defenseFinal += buff.statsBoost.defense
+        stats_copy.defenseFinal += buff.statsBoost.defensePercentage*stats.defenseBase
+
+        stats_copy.hpFinal += buff.statsBoost.hp
+        stats_copy.hpFinal += buff.statsBoost.hpPercentage*stats.hpBase
+
+        stats_copy.speedFinal += buff.statsBoost.speed
+        stats_copy.speedFinal += buff.statsBoost.speedPercentage
+
+        stats_copy.criticalChance += buff.statsBoost.criticalChance
+        stats_copy.criticalDamage += buff.statsBoost.criticalDamage
+
+        stats_copy.healRatio += buff.statsBoost.healRatio
+        stats_copy.stanceBreakRatio += buff.statsBoost.stanceBreakRatio
+        stats_copy.statusResistance += buff.statsBoost.statusResistance
+        stats_copy.statusProbability += buff.statsBoost.statusProbability
+        stats_copy.spRatio += buff.statsBoost.spRatio
+
+        stats_copy.elecAddHurt += buff.statsBoost.elecAddHurt
+        stats_copy.fireAddHurt += buff.statsBoost.fireAddHurt
+        stats_copy.iceAddHurt += buff.statsBoost.iceAddHurt
+        stats_copy.imaginaryAddHurt += buff.statsBoost.imaginaryAddHurt
+        stats_copy.windAddHurt += buff.statsBoost.windAddHurt
+        stats_copy.physicalAddHurt += buff.statsBoost.physicalAddHurt
+        stats_copy.quantumAddHurt += buff.statsBoost.quantumAddHurt
+    }
+    return stats
+}
 export {Multipliers}

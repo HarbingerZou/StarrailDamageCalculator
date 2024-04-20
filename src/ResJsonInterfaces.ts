@@ -14,3 +14,24 @@ interface FlatMultipliersInterface{
     resMultiplier:number
     toughnessMultiplier:number
 }
+ 
+interface InfoInterface{
+    name:string
+    value:number
+    notes:string[]
+    multipliers:FlatMultipliersInterface
+}
+class Info implements InfoInterface{
+    name:string;
+    value:number;
+    //for effect
+    notes:string[];
+    //multiplier
+    multipliers:FlatMultipliersInterface;
+    constructor(name:string, value:number, notes:string[], multipliers:FlatMultipliersInterface){
+        this.name = name;
+        this.value = value;
+        this.notes = notes;
+        this.multipliers = multipliers;
+    }
+}
