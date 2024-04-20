@@ -2,25 +2,17 @@ import { Buff, skill_Coef_all_level, ValidTarget } from "../../LocalInterfaces";
 import { Stats } from "../../ReqJSONInterfaces";
 import { getBasicCoefficientDependentStats, getSkillTalentCoef, getUltimateCoefficientDependentStats, Context, getAllBuffOnCharacter } from "../../scenarioSetting";
 import { Multipliers } from "../../singleEnemyDamageCalculation";
-import {Character,LocalContext, HasLocalContext, InTurnContext, getDamageBuffInfo} from "../_CharacterAbstract";
+import {Character,LocalContext, HasLocalContext, InTurnContext} from "../_CharacterAbstract";
 
 //store info only relevant to this character
-type localBuffName = "LeapResPen"| "DracoreLibre_main" | "DracoreLibre_side"|
- "RighteousHeart_main" | "RighteousHeart_side" | "imagWeakCritDamageIncrease"
+type localBuffName = "LeapResPen"| "DracoreLibre"|
+ "RighteousHeart" | "RighteousHeart" | "imagWeakCritDamageIncrease"
 
 class Dan_Heng_IL_Local_Context implements LocalContext{
     maxRighteousHeart:number = 6
     RighteousHeartGainPerAttack:number = 1
 
     localBuffs:Partial<Record<localBuffName,Buff>>
-    Divine_Spear_Dracore_Libre_total_stack:number = 3
-    Fulgurant_Leap_Dracore_Libre_total_stack:number = 10
-    Divine_Spear_Dracore_Libre_side_attack_count:number = 2
-    Fulgurant_Leap_Dracore_Libre_side_attack_count:number = 4
-    Divine_Spear_Dracore_Libre_main_attack_count:number = 5
-    Fulgurant_Leap_Dracore_Libre_main_attack_count:number = 7
-
-    Azures_Aqua_Ablutes_All_attack_count = 3
     constructor(){
         this.maxRighteousHeart = 6
         this.localBuffs = {}
@@ -90,77 +82,32 @@ class Dan_Heng_IL extends Character<skill_Coef_all_level[], number[], skill_Coef
     }
 
     addPassiveSkill(context:Context){
-        const buff_main = new Buff()
-        const buff_side = new Buff()
+        const buff = new Buff()
         const eachHeartGain = this.talent_data[this.talent_level-1] 
-        let talentBoost:number = 0
-        let talentBoost2:number = 0;
-        const heartGainPerAttack = this.localContext.RighteousHeartGainPerAttack
-        if(this.inTurnContext.DracoreLibreCount === 0){
-            talentBoost = eachHeartGain*heartGainPerAttack*0/1
-        }else if(this.inTurnContext.DracoreLibreCount === 1){
-            //maxium 2 or 4, cumulative 3 or 6
-            talentBoost = eachHeartGain*heartGainPerAttack*3/3
-        }else if(this.inTurnContext.DracoreLibreCount === 2){
-            //maxium 4 or 8,
-            talentBoost = eachHeartGain*heartGainPerAttack*10/5
-            talentBoost2 = eachHeartGain*heartGainPerAttack*7/2
-        }else if(this.inTurnContext.DracoreLibreCount === 3){
-            if (heartGainPerAttack === 1) {
-                talentBoost = eachHeartGain * 1 * 21 / 7;
-                talentBoost2 = eachHeartGain * 1 * 18 / 4;
-            } else {
-                //2, 4, 6, 8, 10, 10
-                talentBoost = eachHeartGain * 2 * 20 / 7;
-                talentBoost2 = eachHeartGain * 2 * 17 / 4;
-            }
-        }else{
-            //this one for ultimate
-            talentBoost = eachHeartGain*heartGainPerAttack*3/3
-        }
-        buff_main.effect.boostMultiplierIncrease += talentBoost;
-        buff_main.notes.push(`Righteous Heart: Damage increase by ${round(talentBoost*100)} (main Target)%`)
-        this.localContext.localBuffs.RighteousHeart_main = buff_main
-
-        buff_side.effect.boostMultiplierIncrease += talentBoost2;
-        buff_side.notes.push(`Righteous Heart: Damage increase by ${round(talentBoost2*100)} (side Target)%`)
-        this.localContext.localBuffs.RighteousHeart_side = buff_side
+        const talentBoost = eachHeartGain * this.localContext.maxRighteousHeart / 2
+        buff.effect.boostMultiplierIncrease += talentBoost;
+        buff.notes.push(`Righteous Heart: Damage increase by ${round(talentBoost*100)} (Approximated)%`)
+        this.localContext.localBuffs.RighteousHeart = buff
 
         //add Dracore Libre
         const critDamageIncreasePerStack = this.skill_data[this.skill_level-1];
-        const buff2_main = new Buff({effectiveField:["basic attack"]})
-        const buff2_side = new Buff({effectiveField:["basic attack"]})
-        let criticalDamageIncrease_main = 0
-        let criticalDamageIncrease_side = 0
-        if(this.inTurnContext.DracoreLibreCount == 2){
-            criticalDamageIncrease_main = critDamageIncreasePerStack*
-                this.localContext.Divine_Spear_Dracore_Libre_total_stack/
-                this.localContext.Divine_Spear_Dracore_Libre_main_attack_count
-
-            criticalDamageIncrease_side = critDamageIncreasePerStack*
-            this.localContext.Divine_Spear_Dracore_Libre_total_stack/
-            this.localContext.Divine_Spear_Dracore_Libre_side_attack_count
-        }
-        if(this.inTurnContext.DracoreLibreCount === 3){
-            criticalDamageIncrease_main = critDamageIncreasePerStack*
-                this.localContext.Fulgurant_Leap_Dracore_Libre_total_stack/
-                this.localContext.Fulgurant_Leap_Dracore_Libre_main_attack_count
-
-            criticalDamageIncrease_side = critDamageIncreasePerStack*
-                this.localContext.Fulgurant_Leap_Dracore_Libre_total_stack/
-                this.localContext.Fulgurant_Leap_Dracore_Libre_side_attack_count
-        }
-
-        buff2_main.statsBoost.criticalDamage += criticalDamageIncrease_main
-        buff2_main.notes.push(`Dracore Libre: CRIT DMG increase by ${round(criticalDamageIncrease_main*100)}%`)
-       
-        buff2_side.statsBoost.criticalDamage += criticalDamageIncrease_side
-        buff2_side.notes.push(`Dracore Libre: CRIT DMG increase by ${round(criticalDamageIncrease_side*100)}%`)
+        const buff2 = new Buff({effectiveField:["basic attack"]})
+        const critDamageIncrease =  critDamageIncreasePerStack*2.2
+        buff2.statsBoost.criticalDamage += critDamageIncreasePerStack*2.2
+        buff2.notes.push(`Dracore Libre: CRIT DMG increase by ${round(critDamageIncrease*100)}%`)
         
-        this.localContext.localBuffs.DracoreLibre_main = buff2_main
-        this.localContext.localBuffs.DracoreLibre_side = buff2_side
+        this.localContext.localBuffs.DracoreLibre = buff2
     }
-
+    getDisplayData1(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+        throw new Error("Method not implemented.");
+    }
+    getDisplayData2(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+        throw new Error("Method not implemented.");
+    }
+    getDisplayData3(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+        throw new Error("Method not implemented.");
+    }
+    /*
     basicAttackPressed(context: Context, currentCharacterIndex: ValidTarget): Multipliers[] {
         const buff = getAllBuffOnCharacter(context,currentCharacterIndex).filter(buff=>buff.effectiveField.includes("basic attack"))
         this.addEffect(context)
@@ -274,9 +221,9 @@ class Dan_Heng_IL extends Character<skill_Coef_all_level[], number[], skill_Coef
                 7/15, sideBuffs, context.enemy[3]
             )
         ]
-    }
+    }*/
 }   
-
+/*
 class Dan_Heng_IL_Info implements getDamageBuffInfo{
     character: Character<skill_Coef_all_level[], number[], skill_Coef_all_level, number[]>
     constructor(character:Character<skill_Coef_all_level[], number[], skill_Coef_all_level, number[]>){
@@ -310,5 +257,5 @@ class Dan_Heng_IL_Info implements getDamageBuffInfo{
     }
 
 }
-
-export {Dan_Heng_IL_Info,Dan_Heng_IL}
+*/
+export {Dan_Heng_IL}
