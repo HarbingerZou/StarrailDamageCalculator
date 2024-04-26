@@ -1,7 +1,8 @@
 import { Buff, skill_Coef_all_level, CharacterInterface, ValidTarget } from "../LocalInterfaces";
 import { Stats } from "../ReqJSONInterfaces";
 import { Context } from "../scenarioSetting";
-import { Multipliers } from "../singleEnemyDamageCalculation";
+import { Multipliers } from "../damageCalculation";
+import { FlatMultipliersInterface } from "../ResJsonInterfaces";
 
 //expects TBasic, TSkill... to be coefficients
 interface LocalContext{
@@ -83,8 +84,8 @@ TTalent extends skill_Coef_all_level | skill_Coef_all_level[] | number[]| number
         this.addTraces(context)
         this.addPassiveSkill(context)
     }
-    abstract getDisplayData1(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
-    abstract getDisplayData2(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
-    abstract getDisplayData3(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface[]|undefined
+    abstract getDisplayData1(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface|undefined
+    abstract getDisplayData2(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface|undefined
+    abstract getDisplayData3(context: Context, currentCharacterIndex:ValidTarget): FlatMultipliersInterface|undefined
 }
 export  {LocalContext, Character, HasLocalContext, InTurnContext}

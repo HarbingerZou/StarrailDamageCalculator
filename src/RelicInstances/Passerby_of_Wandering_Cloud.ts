@@ -8,10 +8,11 @@ export default class Passerby_of_Wandering_Cloud implements RelicSet{
         this.count = count;
         this.setName = "Passerby of Wandering Cloud"
     }
-    getInBattleEffect(): Buff{
+    getInBattleEffect(): Buff[]{
+        const output:Buff[] = []
         const buff:Buff = new Buff()
         /*buff.notes.push(`${this.setName}:
             At the beginning of the battle, immediately recovers 1 Skill Point.`)*/
-        return buff
+        return output
     }
 }

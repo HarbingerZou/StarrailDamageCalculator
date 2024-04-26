@@ -17,7 +17,7 @@ export default abstract class Weapon implements WeaponInterface{
         this.rankLevel = rankLevel;
         this.effectName = effectName
     }
-    abstract getInBattleEffect(): Buff|Buff[]|OnEnemyDeBuff|OnEnemyDeBuff[];
+    abstract getInBattleEffect(): Buff | OnEnemyDeBuff | (Buff | OnEnemyDeBuff)[];;
     
     isEffective():boolean {
         return this.holderPath === this.path;

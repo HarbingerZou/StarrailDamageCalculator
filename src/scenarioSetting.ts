@@ -1,17 +1,32 @@
 import { skill_Coef_all_level, CharacterInterface, EnemyInstances, OnEnemyDeBuff, Buff, skill_Coef_Aggregate, ValidTarget } from "./LocalInterfaces"
-interface friendlyUnit{
+interface FriendlyUnitInterface{
     character:CharacterInterface<
-        skill_Coef_all_level | skill_Coef_all_level[],
-        skill_Coef_all_level | skill_Coef_all_level[],
-        skill_Coef_all_level | skill_Coef_all_level[],
-        skill_Coef_all_level | skill_Coef_all_level[]>
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]>
     buffs:Buff[]
 }
-interface hostileUnit{
+class FriendlyUnit implements FriendlyUnitInterface{
+    character: CharacterInterface<skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]>;
+    buffs: Buff[];
+    constructor(character:CharacterInterface<skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]>){
+        this.character = character
+        this.buffs = []
+    }
+
+}
+interface hostileUnitInterface{
     unit:EnemyInstances
     debuffs:OnEnemyDeBuff[]
 }
-class hostileUnit implements hostileUnit{
+class hostileUnit implements hostileUnitInterface{
     unit: EnemyInstances;
     debuffs: OnEnemyDeBuff[];
     constructor(){
@@ -22,20 +37,25 @@ class hostileUnit implements hostileUnit{
 class Scene{
     //maxium 5
     enemy:hostileUnit
-    character:friendlyUnit
-    constructor(enemy = new hostileUnit(), character:friendlyUnit){
+    friendlyUnit:FriendlyUnitInterface
+    constructor(character:CharacterInterface<
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][],
+        skill_Coef_all_level | skill_Coef_all_level[] | number[]| number[][]>,
+        enemy = new hostileUnit()){
         this.enemy = enemy
-        this.character = character
+        this.friendlyUnit = new FriendlyUnit(character)
     }
 
 }   
 
 interface Context{
-    enemy:hostileUnit[]
-    friendlyUnit:friendlyUnit
+    enemy:hostileUnit
+    friendlyUnit:FriendlyUnitInterface
 }
 
-export {hostileUnit, friendlyUnit, Scene, Context}
+export {hostileUnit, FriendlyUnitInterface, Scene, Context}
 
 function getSkillTalentCoef(multiplier:number){
     const talentSkillCoefficient = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.625, 1.75, 1.875, 2, 2.1, 2.2]

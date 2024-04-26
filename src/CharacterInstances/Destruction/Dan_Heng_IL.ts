@@ -1,12 +1,13 @@
 import { Buff, skill_Coef_all_level, ValidTarget } from "../../LocalInterfaces";
 import { Stats } from "../../ReqJSONInterfaces";
 import { getBasicCoefficientDependentStats, getSkillTalentCoef, getUltimateCoefficientDependentStats, Context, getAllBuffOnCharacter } from "../../scenarioSetting";
-import { Multipliers } from "../../singleEnemyDamageCalculation";
+import { Multipliers } from "../../damageCalculation";
 import {Character,LocalContext, HasLocalContext, InTurnContext} from "../_CharacterAbstract";
+import { FlatMultipliersInterface } from "../../ResJsonInterfaces";
 
 //store info only relevant to this character
 type localBuffName = "LeapResPen"| "DracoreLibre"|
- "RighteousHeart" | "RighteousHeart" | "imagWeakCritDamageIncrease"
+ "RighteousHeart"| "imagWeakCritDamageIncrease"
 
 class Dan_Heng_IL_Local_Context implements LocalContext{
     maxRighteousHeart:number = 6
@@ -98,13 +99,26 @@ class Dan_Heng_IL extends Character<skill_Coef_all_level[], number[], skill_Coef
         
         this.localContext.localBuffs.DracoreLibre = buff2
     }
-    getDisplayData1(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
-        throw new Error("Method not implemented.");
+    getDisplayData1(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface | undefined {
+        const buffs:Buff[] = [...context.friendlyUnit.buffs].filter(buff=>buff.effectiveField.includes('basic attack'))
+        const localBuffs = this.localContext.localBuffs
+        if(localBuffs.imagWeakCritDamageIncrease){
+            buffs.concat(localBuffs.imagWeakCritDamageIncrease)
+        }
+        if(localBuffs.DracoreLibre){
+            buffs.concat(localBuffs.DracoreLibre)
+        }
+        if(localBuffs.RighteousHeart){
+            buffs.concat(localBuffs.RighteousHeart)
+        }
+        const multiplier:Multipliers = new Multipliers(this.level, this.element, this.stats, this.basic_data[2].allLevelCoef[this.basic_level-1], buffs, context.enemy, 1.32)
+        return multiplier.getFlatMultipliers()
     }
-    getDisplayData2(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
-        throw new Error("Method not implemented.");
+    getDisplayData2(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface | undefined {
+        //throw new Error("Method not implemented.");
+        return undefined
     }
-    getDisplayData3(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface[] | undefined {
+    getDisplayData3(context: Context, currentCharacterIndex: ValidTarget): FlatMultipliersInterface | undefined {
         throw new Error("Method not implemented.");
     }
     /*

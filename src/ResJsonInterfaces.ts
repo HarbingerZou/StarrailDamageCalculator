@@ -13,6 +13,7 @@ interface FlatMultipliersInterface{
     defMultiplier:number
     resMultiplier:number
     toughnessMultiplier:number
+    targetCount:number
 }
  
 interface InfoInterface{
@@ -35,3 +36,8 @@ class Info implements InfoInterface{
         this.multipliers = multipliers;
     }
 }
+interface AggregateInfoInterface{
+    infos:Info[]
+
+}
+export{FlatMultipliersInterface, InfoInterface, baseValueMultiplierInterface, AggregateInfoInterface}

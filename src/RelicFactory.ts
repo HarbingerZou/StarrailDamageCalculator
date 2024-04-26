@@ -163,6 +163,7 @@ function getRelicSetList(relicList:Relic[]):RelicSet[]{
     for(const [ID, count] of RelicCounts){
         const set:RelicSet|undefined = getRelicSet(ID, count)
         if(set !== undefined){
+            console.log(set)
             output.push(set);
         }
     }

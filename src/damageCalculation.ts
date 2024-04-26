@@ -1,6 +1,8 @@
 import { Stats } from "./ReqJSONInterfaces";
 import { skill_Coef_Aggregate, Buff } from "./LocalInterfaces";
 import { hostileUnit } from "./scenarioSetting";
+import { FlatMultipliersInterface, baseValueMultiplierInterface } from "./ResJsonInterfaces";
+
 class Multipliers{
     stats: Record<statsMultiplierDependentStats,number>;
     aggregateCoef:skill_Coef_Aggregate;
@@ -14,10 +16,13 @@ class Multipliers{
     defMultiplier:number
     resMultiplier:number
     toughnessMultiplier:number
+    targetCount:number
+    
     dynamicProperties: Record<string, number> = {};
 
     //Standard way of constructing multiplier from 
-    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate, buffs:Buff[],  hostileUnit:hostileUnit){
+    constructor(level:number, element:element, stats:Stats, aggregateCoef:skill_Coef_Aggregate,
+        buffs:Buff[],  hostileUnit:hostileUnit, targetCount:number){
         const stats_local = getStatsAfterBuff(stats, buffs)
         const depdentStats:Record<statsMultiplierDependentStats,number>={
             "ATK":stats.attackFinal,
@@ -52,6 +57,8 @@ class Multipliers{
         this.resMultiplier = resMultiplierIncrease1+resMultiplierIncrease2+1;
         //for some character ignore toughness, set 
         this.toughnessMultiplier = 0.9+debuffs.map(buff=>buff.effect.toughnessMultiplierIncrease).reduce((acc, value) => acc + value, 0)
+        
+        this.targetCount = targetCount
     }
 
     public getStraightDamageWithFinalStats():number {
@@ -67,7 +74,9 @@ class Multipliers{
                 baseMultiplier += coef.value*this.stats.HP
             }
         }
-        return baseMultiplier * this.critMultiplier*this.boostMultiplier*this.defMultiplier*this.resMultiplier*this.vulnerabilityMultiplier*this.toughnessMultiplier
+        return baseMultiplier * this.critMultiplier*this.boostMultiplier
+            *this.defMultiplier*this.resMultiplier*this.vulnerabilityMultiplier*this.toughnessMultiplier
+            *this.targetCount
     }
 
     public getFlatMultipliers(): FlatMultipliersInterface {
@@ -88,6 +97,7 @@ class Multipliers{
             defMultiplier: this.defMultiplier,
             resMultiplier: this.resMultiplier,
             toughnessMultiplier: this.toughnessMultiplier,
+            targetCount:this.targetCount,
             // Spread any dynamic properties that have been added
             ...this.dynamicProperties,
         };

@@ -9,9 +9,10 @@ export default class Eagle_of_Twilight_Line implements RelicSet{
         this.setName = "Eagle of Twilight Line"
     }
 
-    getInBattleEffect(): Buff {
+    getInBattleEffect(): Buff[] {
+        const output:Buff[] = []
         const buff:Buff = new Buff()
         //buff.notes.push(`${this.setName}: After the wearer uses their Ultimate, their action is Advanced Forward by 25%.`)
-        return buff
+        return output
     }
 }

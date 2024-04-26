@@ -8,10 +8,14 @@ export default class Talia_Kingdom_of_Banditry implements RelicSet{
         this.count = count;
         this.setName = "Talia: Kingdom of Banditry"
     }
-    getInBattleEffect(): Buff {
-        const buff:Buff = new Buff()
-        buff.statsBoost.stanceBreakRatio += 0.2
-        buff.notes.push(`${this.setName}: When the wearer's SPD reaches 145 or higher, the wearer's Break effect increases by an extra 20% (effective).`)
-        return buff
+    getInBattleEffect(): Buff[] {
+        const output:Buff[] = []
+        if(this.count>=2){
+            const buff:Buff = new Buff()
+            buff.statsBoost.stanceBreakRatio += 0.2
+            buff.notes.push(`${this.setName}: When the wearer's SPD reaches 145 or higher, the wearer's Break effect increases by an extra 20% (effective).`)
+            output.push(buff)
+        }
+        return output
     }
 }

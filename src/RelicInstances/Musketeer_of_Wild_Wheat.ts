@@ -7,8 +7,9 @@ export default class Musketeer_of_Wild_Wheat implements RelicSet{
         this.count = count;
         this.setName = "Musketeer of Wild Wheat"
     }
-    getInBattleEffect(): Buff {
+    getInBattleEffect(): Buff[] {
+        const output:Buff[] = []
         const buff:Buff = new Buff()
-        return buff
+        return output
     }
 }
