@@ -1,26 +1,117 @@
-Project Overview
-This project is a modular damage calculator designed for role-playing game (RPG) scenarios, focusing on Starrail characters, weapons, and relics. The application calculates battle damage based on stats, buffs, debuffs, and multipliers.
 
-Key Features & Functionality
-Core Damage Calculation (damageCalculation.ts):
+# Starrail Damage Calculator
 
-The Multipliers class integrates attributes such as attack (ATK), defense (DEF), health (HP), and critical rates, which are essential for calculating total damage.
-It applies various multipliers (e.g., critMultiplier, boostMultiplier, vulnerabilityMultiplier) to finalize damage, reflecting how buffs and debuffs interact with base stats.
-The getStraightDamageWithFinalStats method consolidates these factors, yielding a comprehensive damage calculation formula based on character stats and current battle conditions.
-Character, Weapon, and Relic Factories:
+The **Starrail Damage Calculator** is a modular and dynamic application for calculating in-game damage in RPG-style games. It is designed to simulate battle scenarios with a focus on Starrail characters, weapons, and relics. The calculator handles stats, buffs, debuffs, and multipliers to provide an accurate damage output, supporting theory-crafting and character builds.
 
-Factories like CharacterFactory, WeaponFactory, and RelicFactory dynamically create instances based on provided IDs, supporting customized characters, weapons, and relic sets.
-Each factory is capable of selecting specific configurations (e.g., getWeapon returns weapons with unique properties like rank, level, and effect).
-Example Characters and Weapons: Files include instances of characters like Dan_Heng_IL and weapons like Along_the_Passing_Shore, each with unique multipliers and abilities.
-Scene and Battle Context (getDamageInfo.ts):
+## Features
 
-This file sets up a battle context, initializing characters, weapons, and relics.
-The function getDamageInfo establishes the full battle scene, including friendly and enemy units with buffs and debuffs, providing context for realistic damage assessment.
-Relic Sets and Customization:
+- **Comprehensive Damage Calculation**: Calculate damage with various multipliers (e.g., critical, boost, defense, resistance) based on character stats.
+- **Factory Design**: Dynamic creation of characters, weapons, and relics using factory classes, making it easy to add new items.
+- **Buff and Debuff Management**: Includes buffs and debuffs for both friendly and enemy units, impacting final damage output.
+- **API-Driven**: Runs on an Express server with endpoints for interacting with the application, allowing integration into other systems.
+- **Flexible Scenario Settings**: Configurable settings for battle scenarios, supporting realistic and varied test cases.
 
-Relic Sets: Specific relic sets, like Fleet_of_the_Ageless and Band_of_Sizzling_Thunder, apply unique bonus effects to characters, impacting battle effectiveness.
-getRelicSetList organizes relics based on set IDs, allowing stacked or cumulative effects if characters use multiple relics from the same set.
-Server and API (app.ts):
+## Getting Started
 
-A basic Express server hosts the application, with endpoints like /singlecharacter accepting character data and returning calculated damage information.
-This setup makes the project compatible with broader applications or integration into a web-based or mobile app.
+### Prerequisites
+
+Ensure you have **Node.js** and **npm** installed. Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/YourUsername/StarrailDamageCalculator.git
+cd StarrailDamageCalculator
+npm install
+```
+
+### Environment Setup
+
+Create a `.env` file in the root directory and configure any required environment variables. Example:
+
+```bash
+PORT=4000
+```
+
+### Running the Application
+
+To start the application, use:
+
+```bash
+npm start
+```
+
+The server will be available at `http://localhost:4000`.
+
+## Usage
+
+The API exposes endpoints to interact with the calculator:
+
+- **`GET /`**: Basic test endpoint to check server status.
+- **`POST /singlecharacter`**: Accepts JSON data for a character, returning calculated damage information.
+
+Example request for `/singlecharacter`:
+
+```json
+{
+  "id": 1213,
+  "level": 80,
+  "rank": 5,
+  "basic_level": 10,
+  "skill_level": 8,
+  "ultimate_level": 9,
+  "talent_level": 6,
+  "trace1": true,
+  "trace2": false,
+  "trace3": true,
+  "stats": {
+    "attackFinal": 1200,
+    "defenseFinal": 800,
+    "hpFinal": 15000,
+    "criticalDamage": 0.5,
+    "criticalChance": 0.3
+  },
+  "weapon": {
+    "id": 23015,
+    "level": 70,
+    "promotion": 2,
+    "rankLevel": 4
+  },
+  "relics": [
+    { "setID": 101, "type": "Musketeer_of_Wild_Wheat", "level": 5, "rarity": 5 }
+  ]
+}
+```
+
+### Core Files
+
+- **`app.ts`**: Sets up the Express server and API routes.
+- **`damageCalculation.ts`**: Contains the `Multipliers` class for handling all damage-related calculations.
+- **`getDamageInfo.ts`**: Initializes the battle scenario, including character, weapon, and relic setups.
+- **`CharacterFactory.ts`, `WeaponFactory.ts`, `RelicFactory.ts`**: Factory classes for creating and managing instances of characters, weapons, and relics.
+
+## Project Structure
+
+```
+StarrailDamageCalculator/
+├── dist/                   # Compiled JS files
+├── src/                    # Source files
+│   ├── CharacterFactory.ts # Character factory class
+│   ├── WeaponFactory.ts    # Weapon factory class
+│   ├── RelicFactory.ts     # Relic factory class
+│   ├── damageCalculation.ts# Core damage calculation
+│   └── app.ts              # Main application setup
+├── .env                    # Environment configuration
+├── package.json            # Project metadata and dependencies
+└── README.md               # Project documentation
+```
+
+## Contributing
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature-name`.
+3. Commit your changes: `git commit -m 'Add feature'`.
+4. Push to the branch: `git push origin feature-name`.
+5. Submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
